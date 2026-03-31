@@ -10,12 +10,17 @@ from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 from langchain_core.callbacks import AsyncCallbackHandler
 from langchain_core.messages import HumanMessage
 from core.config import settings
-
-# NEW IMPORTS FOR PGVECTOR
 from langchain_community.vectorstores.pgvector import PGVector
 
-# WE NOW USE LOCAL FASTEMBED INSTEAD OF OPENROUTER
-embedding = FastEmbedEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+# NEW IMPORTS FOR PGVECTOR
+from langchain_openai import OpenAIEmbeddings
+
+# WE NOW USE OPENROUTER API INSTEAD OF LOCAL FASTEMBED TO SAVE RAM
+embedding = OpenAIEmbeddings(
+    openai_api_key=settings.OPENROUTER_API_KEY,
+    openai_api_base="https://openrouter.ai/api/v1",
+    model="openai/text-embedding-3-small"
+)
 
 def _get_vector_store(collection_name: str) -> PGVector:
     """Helper to get a PGVector store connection."""
