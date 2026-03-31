@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+.env
+faiss_index/
+pdf_analysis.db
+.DS_Store
