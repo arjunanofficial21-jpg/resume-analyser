@@ -15,7 +15,7 @@ from core.config import settings
 from langchain_community.vectorstores.pgvector import PGVector
 
 # WE NOW USE LOCAL FASTEMBED INSTEAD OF OPENROUTER
-embedding = FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
+embedding = FastEmbedEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 def _get_vector_store(collection_name: str) -> PGVector:
     """Helper to get a PGVector store connection."""
