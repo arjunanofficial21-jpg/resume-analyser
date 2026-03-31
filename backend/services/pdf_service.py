@@ -170,11 +170,7 @@ def process_pdf(file_path: str, session_id: str, original_filename: str) -> Opti
     # ── Candidate registry ────────────────────────────────────────────────────
     _add_candidate(session_id, candidate_name, original_filename)
 
-    suggested_title = None
-    if docs:
-        lines = [l.strip() for l in docs[0].page_content.split("\n") if l.strip()]
-        if lines:
-            suggested_title = lines[0][:40]
+    suggested_title = f"{candidate_name}" if candidate_name else original_filename
     return suggested_title
 
 

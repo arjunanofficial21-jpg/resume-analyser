@@ -424,8 +424,14 @@ export default function App() {
 
       if (text && text.trim().length > 0) {
         chatMutation.mutate({ id: convId, message: text.trim() });
+      } else if (successfulFiles.length > 0) {
+        // Auto-summarize if no specific question was asked
+        const fileNames = successfulFiles.map(f => f.name).join(', ');
+        chatMutation.mutate({ 
+          id: convId, 
+          message: `Please provide a professional, structured summary of ${fileNames}, highlighting key skills, experience, and education.` 
+        });
       }
-      // No auto-question on upload — user asks manually
     },
     onError: (err, { convId }) => {
       const raw = err?.message || '';
