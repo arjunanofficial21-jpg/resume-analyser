@@ -5,7 +5,8 @@ from typing import Optional
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_openai import ChatOpenAI
+from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 from langchain.callbacks.base import AsyncCallbackHandler
 from langchain_core.messages import HumanMessage
 from core.config import settings
@@ -13,11 +14,8 @@ from core.config import settings
 # NEW IMPORTS FOR PGVECTOR
 from langchain_community.vectorstores.pgvector import PGVector
 
-embedding = OpenAIEmbeddings(
-    openai_api_key=settings.OPENROUTER_API_KEY,
-    openai_api_base="https://openrouter.ai/api/v1",
-    model="text-embedding-3-small"
-)
+# WE NOW USE LOCAL FASTEMBED INSTEAD OF OPENROUTER
+embedding = FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
 
 def _get_vector_store(collection_name: str) -> PGVector:
     """Helper to get a PGVector store connection."""
