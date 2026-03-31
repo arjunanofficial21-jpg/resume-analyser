@@ -8,6 +8,8 @@ import MessageList from './components/MessageList';
 import EmptyState from './components/EmptyState';
 import ChatInput from './components/ChatInput';
 import DropOverlay from './components/DropOverlay';
+import LoginModal from './components/LoginModal';
+import { useAuth } from './context/AuthContext';
 import { 
   chatWithDocument, 
   uploadDocument, 
@@ -161,6 +163,8 @@ function ChatView({
 export default function App() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     const saved = localStorage.getItem('sidebarOpen');
     if (saved !== null) return saved === 'true';
@@ -263,7 +267,7 @@ export default function App() {
     };
   }, [currentConvId]);
 
-  // 1. Load sessions on mount
+  // Reload sessions whenever the user signs in or out
   useEffect(() => {
     getSessions()
       .then((data) => {
@@ -275,7 +279,13 @@ export default function App() {
         })));
       })
       .catch(console.error);
-  }, []);
+    // Reset active conversation on logout
+    if (!user) {
+      setCurrentConvId(null);
+      setMessagesByConv({});
+      navigate('/');
+    }
+  }, [user]);
 
   const appendMessage = (convId, message) => {
     setMessagesByConv((prev) => {
@@ -500,6 +510,7 @@ export default function App() {
         }}
         onDelete={handleDeleteConversation}
         onRename={handleRenameConversation}
+        onSignInClick={() => setLoginModalOpen(true)}
       />
 
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
@@ -544,6 +555,8 @@ export default function App() {
           } />
         </Routes>
       </div>
+
+      <LoginModal isOpen={loginModalOpen} onClose={() => setLoginModalOpen(false)} />
     </div>
   );
 }

@@ -10,6 +10,7 @@ class Session(Base):
     id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     title = Column(String, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    user_id = Column(String, nullable=True, index=True)
 
     messages = relationship("Message", back_populates="session", cascade="all, delete-orphan")
     uploaded_files = relationship("UploadedFile", back_populates="session", cascade="all, delete-orphan")

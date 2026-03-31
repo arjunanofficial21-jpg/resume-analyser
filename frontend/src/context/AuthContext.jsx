@@ -3,7 +3,7 @@ import { createContext, useContext, useState, useCallback } from 'react';
 const AuthContext = createContext(null);
 
 const STORAGE_KEY = 'chatbot_user';
-const FREE_CHAT_KEY = 'chatbot_free_chat_used';
+const TOKEN_KEY = 'chatbot_google_token';
 
 function parseStoredUser() {
   try {
@@ -16,9 +16,10 @@ function parseStoredUser() {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(parseStoredUser);
+  const [credential, setCredential] = useState(() => localStorage.getItem(TOKEN_KEY) || null);
 
-  /** Call this with the decoded Google credential payload */
-  const login = useCallback((googleUser) => {
+  /** Call this with the raw Google credential + decoded payload */
+  const login = useCallback((googleUser, rawCredential) => {
     const profile = {
       name: googleUser.name,
       email: googleUser.email,
@@ -26,26 +27,22 @@ export function AuthProvider({ children }) {
       sub: googleUser.sub,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+    if (rawCredential) {
+      localStorage.setItem(TOKEN_KEY, rawCredential);
+      setCredential(rawCredential);
+    }
     setUser(profile);
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(FREE_CHAT_KEY);
+    localStorage.removeItem(TOKEN_KEY);
     setUser(null);
-  }, []);
-
-  /** Mark that the guest has used their one free chat */
-  const markFreeChatUsed = useCallback(() => {
-    localStorage.setItem(FREE_CHAT_KEY, '1');
-  }, []);
-
-  const isFreeChatUsed = useCallback(() => {
-    return localStorage.getItem(FREE_CHAT_KEY) === '1';
+    setCredential(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, markFreeChatUsed, isFreeChatUsed }}>
+    <AuthContext.Provider value={{ user, credential, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

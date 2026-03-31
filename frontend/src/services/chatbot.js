@@ -1,8 +1,20 @@
 import axios from 'axios';
 import { API_BASE_URL, PDF_BASE, SESSIONS } from './api';
 
+const TOKEN_KEY = 'chatbot_google_token';
+
 const api = axios.create({
   baseURL: API_BASE_URL,
+});
+
+// ── Auth interceptor — inject Bearer token on every request ────────────────
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
 });
 
 // ── Model manager (localStorage) ──────────────────────────────────────────
@@ -34,7 +46,11 @@ function switchToBackup() {
  * Automatically retries with backup model on 429, stores preference in localStorage.
  */
 export const chatWithDocument = async (question, sessionId, onChunk, signal) => {
-  const headers = { 'Content-Type': 'application/json' };
+  const token = localStorage.getItem(TOKEN_KEY);
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+  };
 
   const activeModel = getActiveModel();
   const modelsToTry = activeModel === PRIMARY_MODEL
@@ -43,7 +59,6 @@ export const chatWithDocument = async (question, sessionId, onChunk, signal) => 
 
   for (let attempt = 0; attempt < modelsToTry.length; attempt++) {
     const model = modelsToTry[attempt];
-    const isForced = true; // always tell backend to use exactly this model
 
     let response;
     try {

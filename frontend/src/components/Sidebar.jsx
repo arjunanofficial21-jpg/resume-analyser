@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Plus, MessageSquare, Trash2, Bot, LogOut, LogIn, Pencil, Check, X, SquarePen, FileText } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 // ── Sidebar icons ────────────────────────────────────────────────
 const SidebarCollapseIcon = () => (
@@ -152,7 +153,7 @@ export default function Sidebar({
   onRename,
   onSignInClick,
 }) {
-  const user = null;
+  const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -266,6 +267,7 @@ export default function Sidebar({
                       </div>
                     </div>
                     <button
+                      onClick={() => { logout(); setMenuOpen(false); }}
                       className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs text-muted hover:text-red-400 hover:bg-red-400/10 transition-colors"
                     >
                       <LogOut size={13} />

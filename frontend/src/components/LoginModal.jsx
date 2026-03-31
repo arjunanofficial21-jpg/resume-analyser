@@ -20,7 +20,7 @@ export default function LoginModal({ isOpen, onClose }) {
   const handleSuccess = (credentialResponse) => {
     try {
       const decoded = jwtDecode(credentialResponse.credential);
-      login(decoded);
+      login(decoded, credentialResponse.credential);
       onClose();
     } catch (err) {
       console.error('Failed to decode Google credential', err);
