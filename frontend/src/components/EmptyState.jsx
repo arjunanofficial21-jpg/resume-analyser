@@ -14,8 +14,8 @@ export default function EmptyState({ onSuggest }) {
       </h1>
 
 
-      <p className="mt-8 text-[10px] md:text-[11px] text-muted/60 text-center">
-        Upload a resume with the 📎 button, then start asking hiring questions.
+      <p className="mt-8 text-sm text-muted/80 text-center max-w-md leading-relaxed">
+        Upload a candidate's resume to begin AI-powered analysis. You can then ask targeted questions to evaluate their skills, experience, and fit for the role.
       </p>
     </div>
   );
