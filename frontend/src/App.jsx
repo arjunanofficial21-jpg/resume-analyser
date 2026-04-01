@@ -367,6 +367,11 @@ export default function App() {
         setUploadProgress({ current: i + 1, total: files.length, fileName: file.name });
         try {
           const result = await uploadDocument(file, convId);
+          // Backend returns 200 OK even if individual files fail, so we must check the inner result
+          const fileResult = result.results?.find(r => r.filename === file.name) || result.results?.[0];
+          if (fileResult && !fileResult.success) {
+            throw new Error(fileResult.error || "Backend processing failed");
+          }
           results.push({ ...result, fileName: file.name, success: true });
         } catch (err) {
           console.error(`Failed to upload ${file.name}:`, err);
@@ -382,7 +387,7 @@ export default function App() {
 
       if (failedUploads.length > 0) {
         toast.error(`${failedUploads.length} file(s) failed to upload`, {
-          description: failedUploads.map(f => f.fileName).join(', '),
+          description: failedUploads.map(f => `${f.fileName}: ${f.message}`).join(' | '),
         });
       }
 

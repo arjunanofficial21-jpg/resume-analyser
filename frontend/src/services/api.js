@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // ── Base URL ──────────────────────────────────────────────────────
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://resume-analyser-3k67.onrender.com';
 export const API_BASE = API_BASE_URL; // For backward compatibility
 
 // ── Axios client ──────────────────────────────────────────────────
