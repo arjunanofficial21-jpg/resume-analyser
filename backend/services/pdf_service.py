@@ -12,14 +12,39 @@ from langchain_core.messages import HumanMessage
 from core.config import settings
 from langchain_community.vectorstores.pgvector import PGVector
 
-# NEW IMPORTS FOR PGVECTOR
-from langchain_openai import OpenAIEmbeddings
+import httpx
+from langchain_core.embeddings import Embeddings
 
-# WE NOW USE OPENROUTER API INSTEAD OF LOCAL FASTEMBED TO SAVE RAM
-embedding = OpenAIEmbeddings(
-    openai_api_key=settings.OPENROUTER_API_KEY,
-    openai_api_base="https://openrouter.ai/api/v1",
-    model="openai/text-embedding-3-small"
+class OpenRouterNvidiaEmbeddings(Embeddings):
+    def __init__(self, api_key: str, model: str):
+        self.api_key = api_key
+        self.model = model
+        self.url = "https://openrouter.ai/api/v1/embeddings"
+        
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "model": self.model,
+            "input": texts
+        }
+        response = httpx.post(self.url, headers=headers, json=data)
+        response.raise_for_status()
+        json_resp = response.json()
+        
+        if "data" in json_resp:
+            return [item["embedding"] for item in json_resp["data"]]
+        raise ValueError(f"No embeddings found in response: {json_resp}")
+
+    def embed_query(self, text: str) -> list[float]:
+        return self.embed_documents([text])[0]
+
+# WE NOW USE OPENROUTER API WITH CUSTOM PARSER TO BYPASS OPENAI SDK VALIDATION
+embedding = OpenRouterNvidiaEmbeddings(
+    api_key=settings.OPENROUTER_API_KEY,
+    model="nvidia/llama-nemotron-embed-vl-1b-v2:free"
 )
 
 def _get_vector_store(collection_name: str) -> PGVector:
